@@ -10,13 +10,12 @@ const App = () => {
     <Router>
       <Routes>
   
-        <Route path="/" element={<IniciSessio />} />
+        <Route path="/IniciSessio" element={<IniciSessio />} />
         
-        {/* Ruta per a la vista de Registre */}
         <Route path="/registre" element={<Registre />} />
         
 
-        <Route path="/panell" element={<Panell />} />
+        <Route path="/" element={<Panell />} />
       </Routes>
     </Router>
   );
