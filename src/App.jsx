@@ -6,10 +6,11 @@ import Panell from './pages/Panell';
 import Header from './componentes/Header';
 
 
+
 const App = () => {
   return (
     <Router>
-      <Header />
+       <Header/>
       <Routes>
   
         <Route path="/IniciSessio" element={<IniciSessio />} />
