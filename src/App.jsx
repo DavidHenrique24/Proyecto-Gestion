@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import IniciSessio from './pages/IniciSessio';
 import Registre from './pages/Registre';
 import Panell from './pages/Panell';
-import Header from './componentes/Header';
+import Header from './componentes/header.jsx';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 
 // Inicializa la colección de tiquets si no existe con Localstoreage
