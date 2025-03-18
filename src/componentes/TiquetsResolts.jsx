@@ -5,6 +5,20 @@ const tenerTiquets = () => {
     return JSON.parse(localStorage.getItem('dades_tiquets')) || [];  // JSON.parse(): Convierte esa cadena JSON en un array de objetos
 };
 
+const eliminarTiquet = (codigo, setTiquetsResolts) => {
+    // Obtener los tiquets actuales del localStorage
+    const tiquets = tenerTiquets();
+    
+    // Filtrar el tiquet a eliminar
+    const tiquetsActualizados = tiquets.filter(tiquet => tiquet.codigo !== codigo);
+    
+    // Guardar el array actualizado en el localStorage
+    localStorage.setItem('dades_tiquets', JSON.stringify(tiquetsActualizados));
+    
+    // Actualizar el estado local
+    setTiquetsResolts(tiquetsActualizados.filter(tiquet => tiquet.estat === 'resolt'));
+};
+
 const TiquetsResolts = () => {
     const [tiquetsResolts, setTiquetsResolts] = useState([]);
 
@@ -46,7 +60,12 @@ const TiquetsResolts = () => {
                                 <button className="btn btn-info me-2" title="Ver comentarios">
                                     <i className="bi bi-chat-left-text"></i>
                                 </button>
-                                <button className="btn btn-danger" title="Eliminar ticket">
+                                {/* Botón para eliminar el tiquet */}
+                                <button 
+                                    className="btn btn-danger" 
+                                    title="Eliminar ticket"
+                                    onClick={() => eliminarTiquet(tiquet.codigo, setTiquetsResolts)}    
+                                >
                                     <i className="bi bi-trash3"></i>
                                 </button>
                             </td>
