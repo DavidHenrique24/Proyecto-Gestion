@@ -1,62 +1,71 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useUser } from '../componentes/UserContext'; // Importamos el contexto del usuario
 
-const IniciSessio = () => {
+const IniciarSesion = () => {
   const [email, setEmail] = useState('');
-  const [contrasenya, setContrasenya] = useState('');
-  
-  // Datos de usuarios 
-  const dades_usuaris = [
-    { email: 'usu@gmail.com', contrasenya: '123456' },
-    { email: 'didac@gmail.com', contrasenya: '123456' },
-  ];
+  const [contrasena, setContrasena] = useState('');
+  const [mensaje, setMensaje] = useState('');
+  const { setUser } = useUser(); // Accedemos a setUser desde el contexto
+  const navigate = useNavigate();
 
-  const VerificarUsu = (e) => {
+  // Obtener usuarios del localStorage
+  const obtenerUsuarios = () => {
+    return JSON.parse(localStorage.getItem('datosUsuarios')) || [];
+  };
+
+  const gestionarLogin = (e) => {
     e.preventDefault();
 
-    // Comprobar si las credenciales coinciden con alguna de las de dades_usuaris
-    const usuarioValido = dades_usuaris.find(
-      (usuario) => usuario.email === email && usuario.contrasenya === contrasenya
-    );
+    const usuariosExistentes = obtenerUsuarios();
 
-    if (usuarioValido) {
-      alert('Login exitoso');
-    } else {
-      alert('Credenciales incorrectas');
+    // Verificar si el usuario existe
+    const usuarioAutenticado = usuariosExistentes.find((usuario) => usuario.email === email && usuario.contrasena === contrasena);
+    
+    if (!usuarioAutenticado) {
+      setMensaje('Usuario o contraseña incorrectos');
+      return;
     }
+
+    // Guardar usuario en el contexto y en localStorage
+    setUser(usuarioAutenticado);
+    localStorage.setItem('usuario', JSON.stringify(usuarioAutenticado));
+
+    // Redirigir al panel
+    navigate('/'); 
   };
 
   return (
     <main className="container mt-5">
       <div className="pt-5">
-        <h1 className="w-100 text-center">Login</h1>
-        <form onSubmit={VerificarUsu} className="form p-4 border shadow bordered mt-5 mx-auto" style={{ width: '400px' }}>
-          <label htmlFor="email" className="mt-2 form-label">User: </label>
-          <input
+        <h1 className="w-100 text-center">Iniciar Sesión</h1>
+        <form onSubmit={gestionarLogin} className="form p-4 border shadow mt-5 mx-auto" style={{ width: '400px' }}>
+          <label htmlFor="email" className="mt-2 form-label">Usuario:</label>
+          <input 
             type="email"
             className="form-control"
             placeholder="usuario@mail.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            required
           />
-  
-          <label htmlFor="pass" className="mt-2 form-label">Contraseña: </label>
-          <input
+
+          <label htmlFor="pass" className="mt-2 form-label">Contraseña:</label>
+          <input 
             type="password"
             className="form-control"
-            value={contrasenya}
-            onChange={(e) => setContrasenya(e.target.value)}
+            value={contrasena}
+            onChange={(e) => setContrasena(e.target.value)}
+            required
           />
-  
-          <input
-            type="submit"
-            className="mt-4 w-100 btn btn-primary"
-            value="Entrar"
-            id="enviar"
-          />
+
+          <input type="submit" className="mt-4 w-100 btn btn-primary" value="Iniciar Sesión" />
         </form>
+
+        {mensaje && <p className="text-center mt-3">{mensaje}</p>}
       </div>
     </main>
   );
 };
 
-export default IniciSessio;
+export default IniciarSesion;

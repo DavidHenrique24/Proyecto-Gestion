@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Navigate } from 'react-router-dom';
 
 const Registro = () => {
   // Estados para el formulario y mensajes
@@ -35,6 +36,7 @@ const Registro = () => {
     setEmail('');
     setContrasena('');
     setMensaje('Registro exitoso.');
+    Navigate('/inicioSessio')
   };
 
   return (
