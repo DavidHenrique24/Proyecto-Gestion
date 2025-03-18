@@ -5,6 +5,20 @@ const tenerTiquets = () => {
     return JSON.parse(localStorage.getItem('dades_tiquets')) || [];  // JSON.parse(): Convierte esa cadena JSON en un array de objetos
 };
 
+const eliminarTiquet = (codigo, setTiquetsPendient) => {
+    // Obtener los tiquets actuales del localStorage
+    const tiquets = tenerTiquets();
+    
+    // Filtrar el tiquet a eliminar
+    const tiquetsActualizados = tiquets.filter(tiquet => tiquet.codigo !== codigo);
+    
+    // Guardar el array actualizado en el localStorage
+    localStorage.setItem('dades_tiquets', JSON.stringify(tiquetsActualizados));
+    
+    // Actualizar el estado local
+    setTiquetsPendient(tiquetsActualizados.filter(tiquet => tiquet.estat === 'pendent'));
+};
+
 const TiquetsPendient = () => {
     const [tiquetsPendient, setTiquetsPendient] = useState([]);
 
@@ -48,8 +62,12 @@ const TiquetsPendient = () => {
                                 <button className="btn btn-info me-2" title="Ver comentarios">
                                     <i className="bi bi-chat-left-text"></i>
                                 </button>
-                                {/*  Aca ya estan los botones */}
-                                <button className="btn btn-danger" title="Eliminar ticket">     
+                                {/* Botón para eliminar el tiquet pendiente */}
+                                <button 
+                                    className="btn btn-danger" 
+                                    title="Eliminar ticket"
+                                    onClick={() => eliminarTiquet(tiquet.codigo, setTiquetsPendient)}     
+                                >
                                     <i className="bi bi-trash3"></i>
                                 </button>
                             </td>
