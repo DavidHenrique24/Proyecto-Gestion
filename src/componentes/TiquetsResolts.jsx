@@ -46,7 +46,8 @@ const TiquetsResolts = () => {
                                 <button className="btn btn-info me-2" title="Ver comentarios">
                                     <i className="bi bi-chat-left-text"></i>
                                 </button>
-                                <button className="btn btn-danger" title="Eliminar ticket">
+                                {/* aca ya estan los botones */}
+                                <button className="btn btn-danger" title="Eliminar ticket">    
                                     <i className="bi bi-trash3"></i>
                                 </button>
                             </td>
