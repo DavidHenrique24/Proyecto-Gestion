@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useUser } from '../componentes/UserContext'; // Importamos el contexto del usuario
+import { useUser } from '../componentes/UserContext'; 
 
 const Header = () => {
   const { user, setUser } = useUser(); // Accedemos al usuario y al método setUser desde el contexto
@@ -28,14 +28,16 @@ const Header = () => {
         <div>
           {user ? (
             <>
-              <Link to="/panel" className="btn btn-secondary mx-2">Panel</Link>
+              <Link to="/" className="btn btn-secondary mx-2">Panel</Link>
               <span className="mx-2">Hola, {user.email}</span>
+              <Link to="/Comentarios" className="btn btn-primary mx-2">Comentarios</Link>
               <button className="btn btn-danger mx-2" onClick={handleLogout}>Cerrar Sesión</button>
             </>
           ) : (
             <>
               <Link to="/IniciSessio" className="btn btn-primary mx-2">Iniciar Sesión</Link>
               <Link to="/registre" className="btn btn-primary mx-2">Registro</Link>
+            
             </>
           )}
         </div>
