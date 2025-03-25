@@ -1,54 +1,59 @@
 import React, { useState } from 'react';
+import { useUser } from '../componentes/UserContext'; // Asegúrete de tener el contexto de usuario
 
-export default function Comentario({ setComentarios, comentarios }) {
-    const [comentario, setComentario] = useState('');
-    const [fecha, setFecha] = useState('');
-    const [autor, setAutor] = useState('Javier Caraculo'); // El autor puede ser estático o dinámico
+const Comentario = ({ setComentarios, comentarios, codigoTiquet }) => {
+    const { user } = useUser();  // Obtén el usuario desde el contexto
+    const [texto, setTexto] = useState('');
 
-    const handleAddComentario = (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
 
-        if (comentario.trim() === '') return; // Evita comentarios vacíos
+        if (user && texto) {
+            const nuevoComentario = {
+                autor: user.email, // Usamos el email del usuario como autor
+                texto,
+                fecha: new Date().toLocaleString(),
+                codigo: codigoTiquet, // Incluimos el código del ticket
+            };
 
-        const nuevoComentario = {
-            autor,
-            fecha,
-            texto: comentario,
-        };
+            const nuevosComentarios = [...comentarios, nuevoComentario];
+            setComentarios(nuevosComentarios);
 
-        // Actualizamos la lista de comentarios
-        const nuevosComentarios = [...comentarios, nuevoComentario];
-        setComentarios(nuevosComentarios);
+            // Guardar los comentarios actualizados en localStorage
+            localStorage.setItem('comentarios', JSON.stringify(nuevosComentarios));
 
-        // Guardamos los nuevos comentarios en localStorage
-        localStorage.setItem('comentarios', JSON.stringify(nuevosComentarios));
-
-        // Limpiamos los campos
-        setComentario('');
-        setFecha('');
+            // Limpiar el campo de texto
+            setTexto('');
+        } else {
+            alert('Por favor, complete todos los campos.');
+        }
     };
 
     return (
-        <form onSubmit={handleAddComentario} className="form card p-3 shadow">
-            <label htmlFor="comentario" className="form-label">Comentario: </label>
-            <textarea 
-                id="comentario"
-                className="form-control"
-                cols="3"
-                value={comentario}
-                onChange={(e) => setComentario(e.target.value)}
-            ></textarea>
-
-            <label htmlFor="fecha" className="form-label me-2 mt-3">Fecha: </label>
-            <div className="d-flex align-items-center">
+        <form onSubmit={handleSubmit} className="my-4">
+            <div className="mb-3">
+                <label htmlFor="comentario" className="form-label">Comentario</label>
+                <textarea
+                    id="comentario"
+                    value={texto}
+                    onChange={(e) => setTexto(e.target.value)}
+                    className="form-control"
+                    placeholder="Escriba su comentario"
+                    rows="4"
+                />
+            </div>
+            <div className="mb-3">
+                <label htmlFor="fecha" className="form-label">Fecha</label>
                 <input
                     type="datetime-local"
-                    className="form-control w-25"
-                    value={fecha}
-                    onChange={(e) => setFecha(e.target.value)}
+                    className="form-control"
+                    value={new Date().toISOString().slice(0, 16)}
+                    disabled
                 />
-                <button className="btn btn-success ms-auto">Añadir comentario</button>
             </div>
+            <button type="submit" className="btn btn-primary">Agregar Comentario</button>
         </form>
     );
-}
+};
+
+export default Comentario;
