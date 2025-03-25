@@ -27,14 +27,14 @@ const App = () => {
        <Header/>
       <Routes>
   
-        <Route path="/IniciSessio" element={<IniciSessio />} />
+        <Route path="/" element={<IniciSessio />} />
         
         <Route path="/registre" element={<Registre />} />
 
         <Route path="/comentarios" element={<Comentarios />} />
         
 
-        <Route path="/" element={<Panell />} />
+        <Route path="/Panel" element={<Panell />} />
       </Routes>
     </Router>
     </UserProvider>

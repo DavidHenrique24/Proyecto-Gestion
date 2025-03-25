@@ -28,14 +28,13 @@ const Header = () => {
         <div>
           {user ? (
             <>
-              <Link to="/" className="btn btn-secondary mx-2">Panel</Link>
+              <Link to="/Panel" className="btn btn-secondary mx-2">Panel</Link>
               <span className="mx-2">Hola, {user.email}</span>
-              <Link to="/Comentarios" className="btn btn-primary mx-2">Comentarios</Link>
               <button className="btn btn-danger mx-2" onClick={handleLogout}>Cerrar Sesión</button>
             </>
           ) : (
             <>
-              <Link to="/IniciSessio" className="btn btn-primary mx-2">Iniciar Sesión</Link>
+              <Link to="/" className="btn btn-primary mx-2">Iniciar Sesión</Link>
               <Link to="/registre" className="btn btn-primary mx-2">Registro</Link>
             
             </>
