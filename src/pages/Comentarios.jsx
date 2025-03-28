@@ -1,41 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import Comentario from '../componentes/Comentario';
+import { obtenerComentarios, guardarComentario } from '../utilidad/funciones';
 
 export default function Comentarios() {
     const [comentarios, setComentarios] = useState([]);
     const [codigoTiquet, setCodigoTiquet] = useState('');
 
     useEffect(() => {
-        // Obtener el código del tiquet desde el localStorage
         const codigo = localStorage.getItem('codigo_tiquet');
         setCodigoTiquet(codigo);
 
-        // Cargar los comentarios desde localStorage
-        let comentariosGuardados;
-        try {
-            comentariosGuardados = JSON.parse(localStorage.getItem('comentarios')) || [];
-        } catch (error) {
-            console.error('Error parsing comentarios from localStorage:', error);
-            comentariosGuardados = [];
-        }
-        if (comentariosGuardados) {
-            setComentarios(comentariosGuardados.filter(comentario => comentario.codigo === codigo));
-        }
+        // Filtrar solo los comentarios del tiquet actual
+        const comentariosGuardados = obtenerComentarios().filter(comentario => comentario.codigo === codigo);
+        setComentarios(comentariosGuardados);
     }, []);
 
-    // Guardar los comentarios en localStorage
-    useEffect(() => {
-        localStorage.setItem('comentarios', JSON.stringify(comentarios));
-    }, [comentarios]);
+    // Función para agregar un nuevo comentario sin perder los anteriores
+    const agregarComentario = (nuevoComentario) => {
+        guardarComentario(nuevoComentario);
+        setComentarios(prevComentarios => [...prevComentarios, nuevoComentario]);
+    };
 
     return (
         <div className="container mt-5">
             <h1>Comentarios</h1>
             <h2 className="my-4">Código ticket: <span>{codigoTiquet}</span></h2>
-            {/* Componente para agregar un comentario */}
-            <Comentario setComentarios={setComentarios} comentarios={comentarios} codigoTiquet={codigoTiquet} />
 
-   
+            {/* Pasamos la función para agregar comentarios */}
+            <Comentario agregarComentario={agregarComentario} codigoTiquet={codigoTiquet} />
 
             <div className="mt-4">
                 {comentarios.length > 0 ? (
