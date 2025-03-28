@@ -5,6 +5,7 @@ import IniciSessio from './pages/IniciSessio';
 import Registre from './pages/Registre';
 import Panell from './pages/Panell';
 import Header from './componentes/header.jsx';
+import Comentarios from './pages/Comentarios.jsx';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 
 
@@ -26,12 +27,14 @@ const App = () => {
        <Header/>
       <Routes>
   
-        <Route path="/IniciSessio" element={<IniciSessio />} />
+        <Route path="/" element={<IniciSessio />} />
         
         <Route path="/registre" element={<Registre />} />
+
+        <Route path="/comentarios" element={<Comentarios />} />
         
 
-        <Route path="/" element={<Panell />} />
+        <Route path="/Panel" element={<Panell />} />
       </Routes>
     </Router>
     </UserProvider>

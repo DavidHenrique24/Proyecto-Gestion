@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 // Función para obtener los tiquets de localStorage
 const tenerTiquets = () => {
@@ -21,12 +22,18 @@ const eliminarTiquet = (codigo, setTiquetsResolts) => {
 
 const TiquetsResolts = () => {
     const [tiquetsResolts, setTiquetsResolts] = useState([]);
+    const navigate = useNavigate();
 
     // Cargar los tiquets resueltos al montar el componente
     useEffect(() => {
         const tiquets = tenerTiquets().filter(tiquet => tiquet.estat === 'resolt');
         setTiquetsResolts(tiquets);
     }, []);
+
+    const verComentarios = (codigo) => {
+        localStorage.setItem('codigo_tiquet', codigo);
+        navigate('/comentarios');
+    };
 
     return (
         <div>
@@ -57,7 +64,11 @@ const TiquetsResolts = () => {
                             <td>{tiquet.descripcion}</td>
                             <td>{tiquet.alumno}</td>
                             <td>
-                                <button className="btn btn-info me-2" title="Ver comentarios">
+                                <button 
+                                    className="btn btn-info me-2" 
+                                    title="Ver comentarios" 
+                                    onClick={() => verComentarios(tiquet.codigo)}
+                                >
                                     <i className="bi bi-chat-left-text"></i>
                                 </button>
                                 {/* Botón para eliminar el tiquet */}

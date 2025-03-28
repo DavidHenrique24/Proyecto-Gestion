@@ -1,50 +1,44 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 // Función para obtener los tiquets de localStorage
 const tenerTiquets = () => {
-    return JSON.parse(localStorage.getItem('dades_tiquets')) || [];  // JSON.parse(): Convierte esa cadena JSON en un array de objetos
+    return JSON.parse(localStorage.getItem('dades_tiquets')) || [];
 };
 
 // Función para resolver un tiquet
 const resolverTiquet = (codigo, setTiquetsPendient) => {
-    // Obtener los tiquets actuales del localStorage
     const tiquets = tenerTiquets();
-    
-    // Encontrar el tiquet que se desea resolver
     const tiquetResuelto = tiquets.map(tiquet => 
         tiquet.codigo === codigo ? { ...tiquet, estat: 'resolt' } : tiquet
     );
-    
-    // Guardar los tiquets actualizados en localStorage
     localStorage.setItem('dades_tiquets', JSON.stringify(tiquetResuelto));
-    
-    // Actualizar el estado local con los tiquets pendientes
     setTiquetsPendient(tiquetResuelto.filter(tiquet => tiquet.estat === 'pendent'));
 };
 
 // Función para eliminar un tiquet
 const eliminarTiquet = (codigo, setTiquetsPendient) => {
-    // Obtener los tiquets actuales del localStorage
     const tiquets = tenerTiquets();
-    
-    // Filtrar el tiquet a eliminar
     const tiquetsActualizados = tiquets.filter(tiquet => tiquet.codigo !== codigo);
-    
-    // Guardar el array actualizado en el localStorage
     localStorage.setItem('dades_tiquets', JSON.stringify(tiquetsActualizados));
-    
-    // Actualizar el estado local con los tiquets pendientes
     setTiquetsPendient(tiquetsActualizados.filter(tiquet => tiquet.estat === 'pendent'));
 };
 
 const TiquetsPendient = () => {
     const [tiquetsPendient, setTiquetsPendient] = useState([]);
+    const navigate = useNavigate(); // Usar useNavigate
 
-    // Cargar los tiquets pendientes al montar el componente
     useEffect(() => {
         const tiquets = tenerTiquets().filter(tiquet => tiquet.estat === 'pendent');
         setTiquetsPendient(tiquets);
     }, []);
+
+    // Función para ver los comentarios de un tiquet
+    const handleVerComentarios = (codigo) => {
+        // Guardamos el código del tiquet en el localStorage para poder acceder a él en la página de comentarios
+        localStorage.setItem('codigo_tiquet', codigo);
+        navigate('/comentarios'); // Redirigir a la página de comentarios
+    };
 
     return (
         <div>
@@ -73,7 +67,6 @@ const TiquetsPendient = () => {
                             <td>{tiquet.descripcion}</td>
                             <td>{tiquet.alumno}</td>
                             <td>
-                                {/* Botón para resolver el tiquet */}
                                 <button 
                                     className="btn btn-success me-2" 
                                     title="Resolver ticket"
@@ -88,7 +81,11 @@ const TiquetsPendient = () => {
                                 </button>
 
                                 {/* Botón para ver los comentarios */}
-                                <button className="btn btn-info me-2" title="Ver comentarios">
+                                <button 
+                                    className="btn btn-info me-2" 
+                                    title="Ver comentarios"
+                                    onClick={() => handleVerComentarios(tiquet.codigo)} // Redirigir al hacer clic
+                                >
                                     <i className="bi bi-chat-left-text"></i>
                                 </button>
 
