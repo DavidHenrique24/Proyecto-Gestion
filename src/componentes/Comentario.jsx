@@ -1,26 +1,23 @@
 import React, { useState } from 'react';
-import { useUser } from '../componentes/UserContext'; // Asegúrete de tener el contexto de usuario
+import { useUser } from '../componentes/UserContext';
 
-const Comentario = ({ setComentarios, comentarios, codigoTiquet }) => {
-    const { user } = useUser();  // Obtén el usuario desde el contexto
+const Comentario = ({ agregarComentario, codigoTiquet }) => {
+    const { user } = useUser();
     const [texto, setTexto] = useState('');
 
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        if (user && texto) {
+        if (user && texto.trim()) {
             const nuevoComentario = {
-                autor: user.email, // Usamos el email del usuario como autor
+                autor: user.email,
                 texto,
                 fecha: new Date().toLocaleString(),
-                codigo: codigoTiquet, // Incluimos el código del ticket
+                codigo: codigoTiquet,
             };
 
-            const nuevosComentarios = [...comentarios, nuevoComentario];
-            setComentarios(nuevosComentarios);
-
-            // Guardar los comentarios actualizados en localStorage
-            localStorage.setItem('comentarios', JSON.stringify(nuevosComentarios));
+            // Agregar el nuevo comentario
+            agregarComentario(nuevoComentario);
 
             // Limpiar el campo de texto
             setTexto('');
@@ -40,15 +37,6 @@ const Comentario = ({ setComentarios, comentarios, codigoTiquet }) => {
                     className="form-control"
                     placeholder="Escriba su comentario"
                     rows="4"
-                />
-            </div>
-            <div className="mb-3">
-                <label htmlFor="fecha" className="form-label">Fecha</label>
-                <input
-                    type="datetime-local"
-                    className="form-control"
-                    value={new Date().toISOString().slice(0, 16)}
-                    disabled
                 />
             </div>
             <button type="submit" className="btn btn-primary">Agregar Comentario</button>

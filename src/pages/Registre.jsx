@@ -13,7 +13,7 @@ const Registro = () => {
   };
 
   const gestionarRegistro = (e) => {
-    e.preventDefault();//e.preventDefault() evita que el formulario se envíe de manera tradicional (lo que recargaría la página).
+    e.preventDefault();//e.preventDefault() evita que el formulario se envíe de manera tradicional 
 
     // Obtener lista actual de usuarios
     const usuariosExistentes = obtenerUsuarios();
