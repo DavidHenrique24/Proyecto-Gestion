@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const Tiquet = () => {
   const [formData, setFormData] = useState({
@@ -6,6 +6,15 @@ const Tiquet = () => {
     ordenador: '',
     descripcion: '',
   });
+
+  const [error, setError] = useState('');
+  const [dadesTiquets, setDadesTiquets] = useState([]);
+
+  useEffect(() => {
+    // Cargar los tiquets guardados en localStorage
+    const tiquetsGuardados = JSON.parse(localStorage.getItem('dades_tiquets')) || [];
+    setDadesTiquets(tiquetsGuardados);
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -17,8 +26,37 @@ const Tiquet = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Datos del formulario enviados:', formData);
-  
+
+    if (!formData.aula || !formData.ordenador || !formData.descripcion) {
+      setError('Todos los campos son obligatorios.');
+      return;
+    }
+
+    const nuevoTiquet = {
+      id: Date.now(),
+      aula: formData.aula,
+      ordenador: formData.ordenador,
+      descripcion: formData.descripcion,
+      fecha: new Date().toLocaleString(),
+    };
+
+    // Agregar el nuevo tiquet al array
+    const nuevosTiquets = [...dadesTiquets, nuevoTiquet];
+    setDadesTiquets(nuevosTiquets);
+
+    // Guardar en localStorage
+    localStorage.setItem('dades_tiquets', JSON.stringify(nuevosTiquets));
+
+    console.log('Tiquet guardado:', nuevoTiquet);
+
+    // Limpiar el formulario
+    setFormData({
+      aula: '',
+      ordenador: '',
+      descripcion: '',
+    });
+
+    setError('');
   };
 
   return (
