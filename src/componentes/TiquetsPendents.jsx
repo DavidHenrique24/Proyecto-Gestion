@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import EditTiquet from '../pages/editTiquet';
 
 // Función para obtener los tiquets de localStorage
 const tenerTiquets = () => {
@@ -75,12 +77,19 @@ const TiquetsPendient = () => {
                                     Resolver
                                 </button>
 
-                                {/* Botón para añadir comentario */}
-                                <button className="btn btn-warning me-2" title="Añadir comentario" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                                    <i className="bi bi-pencil"></i>
-                                </button>
+                                <Link to={`/editTiquet/${tiquet.codigo}`}>
+                                 <button 
+                                          className="btn btn-warning me-2" 
+                                          title="Añadir comentario" 
+                                           data-bs-toggle="modal" 
+                                             data-bs-target="#exampleModal" 
+                                         >
+              <i className="bi bi-pencil"></i>
+            </button>
+          </Link>
+                                
 
-                                {/* Botón para ver los comentarios */}
+                                {/* Boton para ver los comentarios */}
                                 <button 
                                     className="btn btn-info me-2" 
                                     title="Ver comentarios"
@@ -89,7 +98,7 @@ const TiquetsPendient = () => {
                                     <i className="bi bi-chat-left-text"></i>
                                 </button>
 
-                                {/* Botón para eliminar el tiquet */}
+                                {/* Botom para eliminar el tiquet */}
                                 <button 
                                     className="btn btn-danger" 
                                     title="Eliminar ticket"

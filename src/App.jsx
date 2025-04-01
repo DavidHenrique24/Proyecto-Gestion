@@ -6,18 +6,9 @@ import Registre from './pages/Registre';
 import Panell from './pages/Panell';
 import Header from './componentes/header.jsx';
 import Comentarios from './pages/Comentarios.jsx';
+import Tiquet from './pages/Tiquet.jsx';
+import EditTiquet from './pages/editTiquet.jsx';
 import 'bootstrap-icons/font/bootstrap-icons.css';
-
-
-// Inicializa la colección de tiquets si no existe con Localstoreage
-if (!localStorage.getItem('dades_tiquets')) {
-  localStorage.setItem('dades_tiquets', JSON.stringify([]));
-}
-
-// Inicializa la colección de usuarios si no existe
-if (!localStorage.getItem('dades_usuaris')) {
-  localStorage.setItem('dades_usuaris', JSON.stringify([])); //JSON.stringify([]): Convierte un array vacío en una cadena JSON para almacenarlo.
-}
 
 
 const App = () => {
@@ -30,10 +21,9 @@ const App = () => {
         <Route path="/" element={<IniciSessio />} />
         
         <Route path="/registre" element={<Registre />} />
-
+        <Route path="/editTiquet/:codigo" element={<EditTiquet />} />
         <Route path="/comentarios" element={<Comentarios />} />
-        
-
+        <Route path="/tiquet" element={<Tiquet />} />
         <Route path="/Panel" element={<Panell />} />
       </Routes>
     </Router>
