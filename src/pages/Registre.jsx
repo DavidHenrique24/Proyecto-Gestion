@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 
 const Registro = () => {
@@ -13,20 +13,20 @@ const Registro = () => {
   };
 
   const gestionarRegistro = (e) => {
-    e.preventDefault();//e.preventDefault() evita que el formulario se envíe de manera tradicional 
+    e.preventDefault(); // Evitar que el formulario se envíe de manera tradicional
 
     // Obtener lista actual de usuarios
     const usuariosExistentes = obtenerUsuarios();
 
     // Verificar si el usuario ya está registrado
-    const usuarioExiste = usuariosExistentes.some((usuario) => usuario.email === email); //El método .some() en JavaScript se utiliza para verificar si al menos un elemento en un array cumple con una condición especificada
+    const usuarioExiste = usuariosExistentes.some((usuario) => usuario.email === email);
     if (usuarioExiste) {
       setMensaje('Este usuario ya está registrado.');
       return;
     }
 
-    // Agregar nuevo usuario
-    const nuevoUsuario = { email, contrasena };
+    // Agregar nuevo usuario con rol predeterminado "user"
+    const nuevoUsuario = { email, contrasena, rol: 'user' };
     const nuevosUsuarios = [...usuariosExistentes, nuevoUsuario];
 
     // Guardar en localStorage
@@ -36,7 +36,9 @@ const Registro = () => {
     setEmail('');
     setContrasena('');
     setMensaje('Registro exitoso.');
-    Navigate('/inicioSessio')
+
+    // Redirigir al inicio de sesión (suponiendo que tienes una ruta para esto)
+    Navigate('/inicioSessio');
   };
 
   return (

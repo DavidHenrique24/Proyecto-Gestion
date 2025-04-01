@@ -8,6 +8,7 @@ import Header from './componentes/header.jsx';
 import Comentarios from './pages/Comentarios.jsx';
 import Tiquet from './pages/Tiquet.jsx';
 import EditTiquet from './pages/editTiquet.jsx';
+import AdminUsuarios from './componentes/adminUsuarios.jsx';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 
 
@@ -25,6 +26,7 @@ const App = () => {
         <Route path="/comentarios" element={<Comentarios />} />
         <Route path="/tiquet" element={<Tiquet />} />
         <Route path="/Panel" element={<Panell />} />
+        <Route path="/adminUsuarios" element={<AdminUsuarios />} />
       </Routes>
     </Router>
     </UserProvider>
