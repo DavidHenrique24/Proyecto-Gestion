@@ -1,45 +1,35 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Link } from 'react-router-dom';
-import EditTiquet from '../pages/editTiquet';
+import { useNavigate, Link } from 'react-router-dom';
+import { useUser } from '../componentes/UserContext'; // Importar el contexto de usuario
 
-// Función para obtener los tiquets de localStorage
-const tenerTiquets = () => {
-    return JSON.parse(localStorage.getItem('dades_tiquets')) || [];
-};
+const tenerTiquets = () => JSON.parse(localStorage.getItem('dades_tiquets')) || [];
 
-// Función para resolver un tiquet
 const resolverTiquet = (codigo, setTiquetsPendient) => {
-    const tiquets = tenerTiquets();
-    const tiquetResuelto = tiquets.map(tiquet => 
+    const tiquets = tenerTiquets().map(tiquet => 
         tiquet.codigo === codigo ? { ...tiquet, estat: 'resolt' } : tiquet
     );
-    localStorage.setItem('dades_tiquets', JSON.stringify(tiquetResuelto));
-    setTiquetsPendient(tiquetResuelto.filter(tiquet => tiquet.estat === 'pendent'));
+    localStorage.setItem('dades_tiquets', JSON.stringify(tiquets));
+    setTiquetsPendient(tiquets.filter(tiquet => tiquet.estat === 'pendent'));
 };
 
-// Función para eliminar un tiquet
 const eliminarTiquet = (codigo, setTiquetsPendient) => {
-    const tiquets = tenerTiquets();
-    const tiquetsActualizados = tiquets.filter(tiquet => tiquet.codigo !== codigo);
-    localStorage.setItem('dades_tiquets', JSON.stringify(tiquetsActualizados));
-    setTiquetsPendient(tiquetsActualizados.filter(tiquet => tiquet.estat === 'pendent'));
+    const tiquets = tenerTiquets().filter(tiquet => tiquet.codigo !== codigo);
+    localStorage.setItem('dades_tiquets', JSON.stringify(tiquets));
+    setTiquetsPendient(tiquets.filter(tiquet => tiquet.estat === 'pendent'));
 };
 
 const TiquetsPendient = () => {
     const [tiquetsPendient, setTiquetsPendient] = useState([]);
-    const navigate = useNavigate(); // Usar useNavigate
+    const navigate = useNavigate();
+    const { user } = useUser(); // Obtener el usuario en sesión
 
     useEffect(() => {
-        const tiquets = tenerTiquets().filter(tiquet => tiquet.estat === 'pendent');
-        setTiquetsPendient(tiquets);
+        setTiquetsPendient(tenerTiquets().filter(tiquet => tiquet.estat === 'pendent'));
     }, []);
 
-    // Función para ver los comentarios de un tiquet
     const handleVerComentarios = (codigo) => {
-        // Guardamos el código del tiquet en el localStorage para poder acceder a él en la página de comentarios
         localStorage.setItem('codigo_tiquet', codigo);
-        navigate('/comentarios'); // Redirigir a la página de comentarios
+        navigate('/comentarios');
     };
 
     return (
@@ -77,34 +67,34 @@ const TiquetsPendient = () => {
                                     Resolver
                                 </button>
 
-                                <Link to={`/editTiquet/${tiquet.codigo}`}>
-                                 <button 
-                                          className="btn btn-warning me-2" 
-                                          title="Añadir comentario" 
-                                           data-bs-toggle="modal" 
-                                             data-bs-target="#exampleModal" 
-                                         >
-              <i className="bi bi-pencil"></i>
-            </button>
-          </Link>
-                                
+                                {/* Solo los administradores pueden editar y eliminar */}
+                                {user?.rol === 'admin' && (
+                                    <>
+                                        <Link to={`/editTiquet/${tiquet.codigo}`}>
+                                            <button 
+                                                className="btn btn-warning me-2" 
+                                                title="Editar ticket"
+                                            >
+                                                <i className="bi bi-pencil"></i>
+                                            </button>
+                                        </Link>
 
-                                {/* Boton para ver los comentarios */}
+                                        <button 
+                                            className="btn btn-danger me-2" 
+                                            title="Eliminar ticket"
+                                            onClick={() => eliminarTiquet(tiquet.codigo, setTiquetsPendient)}
+                                        >
+                                            <i className="bi bi-trash3"></i>
+                                        </button>
+                                    </>
+                                )}
+
                                 <button 
                                     className="btn btn-info me-2" 
                                     title="Ver comentarios"
-                                    onClick={() => handleVerComentarios(tiquet.codigo)} // Redirigir al hacer clic
+                                    onClick={() => handleVerComentarios(tiquet.codigo)}
                                 >
                                     <i className="bi bi-chat-left-text"></i>
-                                </button>
-
-                                {/* Botom para eliminar el tiquet */}
-                                <button 
-                                    className="btn btn-danger" 
-                                    title="Eliminar ticket"
-                                    onClick={() => eliminarTiquet(tiquet.codigo, setTiquetsPendient)}
-                                >
-                                    <i className="bi bi-trash3"></i>
                                 </button>
                             </td>
                         </tr>
@@ -116,3 +106,4 @@ const TiquetsPendient = () => {
 };
 
 export default TiquetsPendient;
+

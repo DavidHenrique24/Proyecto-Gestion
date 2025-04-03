@@ -1,12 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useEffect } from 'react'; 
 import { Link, useNavigate } from 'react-router-dom';
 import { useUser } from '../componentes/UserContext'; 
 
 const Header = () => {
-  const { user, setUser } = useUser(); // Accedemos al usuario y al método setUser desde el contexto
-  const navigate = useNavigate(); // Usamos useNavigate para redirigir al usuario
+  const { user, setUser } = useUser();
+  const navigate = useNavigate();
 
-  // Al cargar el componente, verificamos si hay un usuario almacenado en localStorage
   useEffect(() => {
     const usuarioGuardado = JSON.parse(localStorage.getItem('usuario'));
     if (usuarioGuardado) {
@@ -14,11 +13,10 @@ const Header = () => {
     }
   }, [setUser]);
 
-  // Función para cerrar sesión
   const handleLogout = () => {
-    setUser(null); // Limpiamos el contexto del usuario
-    localStorage.removeItem('usuario'); // Eliminamos el usuario del localStorage
-    navigate('/IniciSessio'); // Redirigimos al inicio de sesión
+    setUser(null);
+    localStorage.removeItem('usuario');
+    navigate('/IniciSessio');
   };
 
   return (
@@ -29,6 +27,12 @@ const Header = () => {
           {user ? (
             <>
               <Link to="/Panel" className="btn btn-secondary mx-2">Panel</Link>
+
+              {/* Si el usuario es admin, mostrar enlace al panel de administración */}
+              {user.rol === "admin" && (
+                <Link to="/adminUsuarios" className="btn btn-warning mx-2">Admin</Link>
+              )}
+
               <span className="mx-2">Hola, {user.email}</span>
               <button className="btn btn-danger mx-2" onClick={handleLogout}>Cerrar Sesión</button>
             </>
@@ -36,7 +40,6 @@ const Header = () => {
             <>
               <Link to="/" className="btn btn-primary mx-2">Iniciar Sesión</Link>
               <Link to="/registre" className="btn btn-primary mx-2">Registro</Link>
-            
             </>
           )}
         </div>

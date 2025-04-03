@@ -1,26 +1,35 @@
 import React, { useState, useEffect } from 'react';
+import { useUser } from '../componentes/UserContext'; // Importamos el contexto del usuario
+import { useNavigate } from 'react-router-dom';
+
+//Si no es admin, redirigir a la página de inicio
+// {user && user.rol !== 'admin' && (
+//   <Navigate to="/" />
+// )}
 
 const AdminUsuarios = () => {
-  // Estado para almacenar los usuarios
   const [datosUsuarios, setDatosUsuarios] = useState([]);
+  const { user, setUser } = useUser(); // Accedemos al usuario en sesión
 
-  // Cargar los usuarios desde localStorage al montar el componente
   useEffect(() => {
-    const usuariosGuardados = JSON.parse(localStorage.getItem('datos_usuarios')) || [];
+    const usuariosGuardados = JSON.parse(localStorage.getItem('datosUsuarios')) || [];
     setDatosUsuarios(usuariosGuardados);
   }, []);
 
-  // Función para manejar el cambio de rol
   const handleRoleChange = (email, nuevoRol) => {
-    // Actualizar el rol del usuario en la lista
     const usuariosActualizados = datosUsuarios.map((usuario) =>
       usuario.email === email ? { ...usuario, rol: nuevoRol } : usuario
     );
 
     setDatosUsuarios(usuariosActualizados);
+    localStorage.setItem('datosUsuarios', JSON.stringify(usuariosActualizados));
 
-    // Guardar los cambios en localStorage
-    localStorage.setItem('datos_usuarios', JSON.stringify(usuariosActualizados));
+    // Si el usuario modificado es el que está en sesión, actualizarlo también
+    if (user && user.email === email) {
+      const usuarioActualizado = { ...user, rol: nuevoRol };
+      setUser(usuarioActualizado);
+      localStorage.setItem('usuario', JSON.stringify(usuarioActualizado));
+    }
   };
 
   return (

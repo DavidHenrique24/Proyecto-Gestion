@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useUser } from '../componentes/UserContext'; // Asegúrate de que tienes un UserContext que proporcione la información del usuario
 
 // Función para obtener los tiquets de localStorage
 const tenerTiquets = () => {
     return JSON.parse(localStorage.getItem('dades_tiquets')) || [];  // JSON.parse(): Convierte esa cadena JSON en un array de objetos
 };
 
+// Función para eliminar un tiquet
 const eliminarTiquet = (codigo, setTiquetsResolts) => {
     // Obtener los tiquets actuales del localStorage
     const tiquets = tenerTiquets();
@@ -23,6 +25,7 @@ const eliminarTiquet = (codigo, setTiquetsResolts) => {
 const TiquetsResolts = () => {
     const [tiquetsResolts, setTiquetsResolts] = useState([]);
     const navigate = useNavigate();
+    const { user } = useUser();  // Obtener el usuario y su rol desde el contexto
 
     // Cargar los tiquets resueltos al montar el componente
     useEffect(() => {
@@ -30,6 +33,7 @@ const TiquetsResolts = () => {
         setTiquetsResolts(tiquets);
     }, []);
 
+    // Función para ver los comentarios
     const verComentarios = (codigo) => {
         localStorage.setItem('codigo_tiquet', codigo);
         navigate('/comentarios');
@@ -71,14 +75,17 @@ const TiquetsResolts = () => {
                                 >
                                     <i className="bi bi-chat-left-text"></i>
                                 </button>
-                                {/* Botón para eliminar el tiquet */}
-                                <button 
-                                    className="btn btn-danger" 
-                                    title="Eliminar ticket"
-                                    onClick={() => eliminarTiquet(tiquet.codigo, setTiquetsResolts)}    
-                                >
-                                    <i className="bi bi-trash3"></i>
-                                </button>
+
+                                {/* Solo mostrar el botón de eliminar si el usuario es admin */}
+                                {user?.rol === 'admin' && (
+                                    <button 
+                                        className="btn btn-danger" 
+                                        title="Eliminar ticket"
+                                        onClick={() => eliminarTiquet(tiquet.codigo, setTiquetsResolts)}    
+                                    >
+                                        <i className="bi bi-trash3"></i>
+                                    </button>
+                                )}
                             </td>
                         </tr>
                     ))}
