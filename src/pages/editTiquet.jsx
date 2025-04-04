@@ -9,7 +9,6 @@ const EditTiquet = () => {
     grupo: '',
     ordenador: '',
     descripcion: '',
-    alumno: user?.email || '', // Solo mostrar email
   });
 
   const [error, setError] = useState('');
@@ -80,16 +79,6 @@ const EditTiquet = () => {
       {error && <div className="alert alert-danger">{error}</div>}
 
       <form onSubmit={handleSubmit}>
-        <div className="mb-3">
-          <label htmlFor="alumno" className="form-label">Email del Alumno:</label>
-          <input
-            type="text"
-            name="alumno"
-            className="form-control"
-            value={formData.alumno}
-            disabled
-          />
-        </div>
 
         <div className="mb-3">
           <label htmlFor="aula" className="form-label">Aula:</label>

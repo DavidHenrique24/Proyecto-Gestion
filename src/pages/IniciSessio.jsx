@@ -33,7 +33,7 @@ const IniciarSesion = () => {
     localStorage.setItem('usuario', JSON.stringify(usuarioAutenticado));
 
     // Redirigir al panel
-    navigate('/'); 
+    navigate('/Panel'); 
   };
 
   return (
