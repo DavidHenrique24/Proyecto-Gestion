@@ -14,6 +14,7 @@ export default function Comentarios() {
         const comentariosGuardados = obtenerComentarios().filter(comentario => comentario.codigo === codigo);
         setComentarios(comentariosGuardados);
     }, []);
+    
 
     // Función para agregar un nuevo comentario sin perder los anteriores
     const agregarComentario = (nuevoComentario) => {
