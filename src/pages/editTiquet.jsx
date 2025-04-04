@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useUser } from '../componentes/UserContext';
-import { useNavigate } from 'react-router-dom'; // Importa useNavigate
+import { useNavigate, useParams } from 'react-router-dom'; // Importa useNavigate y useParams
 
-const Tiquet = () => {
+const EditTiquet = () => {
   const { user } = useUser(); // Obtener usuario desde el contexto
   const [formData, setFormData] = useState({
-    aula: user?.aula || '',
-    grupo: user?.grupo || '',
+    aula: '',
+    grupo: '',
     ordenador: '',
     descripcion: '',
     alumno: user?.email || '', // Solo mostrar email
@@ -15,21 +15,23 @@ const Tiquet = () => {
   const [error, setError] = useState('');
   const [dadesTiquets, setDadesTiquets] = useState([]);
   const navigate = useNavigate(); // Inicializa el hook de navegación
+  const { codigo } = useParams(); // Obtiene el 'codigo' del tiquet desde los parámetros de la URL
 
   useEffect(() => {
     const tiquetsGuardados = JSON.parse(localStorage.getItem('dades_tiquets')) || [];
     setDadesTiquets(tiquetsGuardados);
-  }, []);
+    const tiquetParaEditar = tiquetsGuardados.find((tiquet) => tiquet.codigo === parseInt(codigo));
 
-  useEffect(() => {
-    // Actualizar email, aula y grupo cuando cambie el usuario
-    setFormData((prevData) => ({
-      ...prevData,
-      alumno: user?.email || '',
-      aula: user?.aula || '',
-      grupo: user?.grupo || '',
-    }));
-  }, [user]);
+    if (tiquetParaEditar) {
+      setFormData({
+        aula: tiquetParaEditar.aula,
+        grupo: tiquetParaEditar.grupo,
+        ordenador: tiquetParaEditar.ordenador,
+        descripcion: tiquetParaEditar.descripcion,
+        alumno: tiquetParaEditar.alumno,
+      });
+    }
+  }, [codigo]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -42,46 +44,38 @@ const Tiquet = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Para no saltear campos 
-    if (!formData.aula || !formData.grupo || !formData.ordenador || !formData.descripcion || !formData.alumno) {
+    // Validar que todos los campos sean completados
+    if (!formData.aula || !formData.grupo || !formData.ordenador || !formData.descripcion) {
       setError('Todos los campos son obligatorios.');
       return;
     }
 
-    const nuevoTiquet = {
-      codigo: Math.floor(100 + Math.random() * 900), 
-      aula: formData.aula,
-      grupo: formData.grupo,
-      ordenador: formData.ordenador,
-      descripcion: formData.descripcion,
-      alumno: formData.alumno, // Solo email
-      fecha: new Date().toLocaleDateString(),
-      estat: 'pendent',
-    };
+    // Actualizar el tiquet en el almacenamiento local
+    const nuevosTiquets = dadesTiquets.map((tiquet) => {
+      if (tiquet.codigo === parseInt(codigo)) {
+        return {
+          ...tiquet,
+          aula: formData.aula,
+          grupo: formData.grupo,
+          ordenador: formData.ordenador,
+          descripcion: formData.descripcion,
+        };
+      }
+      return tiquet;
+    });
 
-    const nuevosTiquets = [...dadesTiquets, nuevoTiquet];
     setDadesTiquets(nuevosTiquets);
     localStorage.setItem('dades_tiquets', JSON.stringify(nuevosTiquets));
 
-    console.log('Tiquet guardado:', nuevoTiquet);
-
-    setFormData({
-      aula: "", // Mantener aula ingresada
-      grupo: "", // Mantener grupo ingresado
-      ordenador: '',
-      descripcion: '',
-      alumno: formData.alumno, // Mantener email
-    });
+    console.log('Tiquet editado:', formData);
 
     setError('');
-
-    // Redirigir al panel después de guardar el tiquet
-    navigate('/panel'); // Asegúrate de que '/panel' es la ruta del panel
+    navigate('/panel'); // Redirigir al panel después de guardar los cambios
   };
 
   return (
     <div className="container mt-5">
-      <h1 className="mb-4">Formulario de Tiquet</h1>
+      <h1 className="mb-4">Editar Tiquet</h1>
 
       {error && <div className="alert alert-danger">{error}</div>}
 
@@ -90,11 +84,10 @@ const Tiquet = () => {
           <label htmlFor="alumno" className="form-label">Email del Alumno:</label>
           <input
             type="text"
-            codigo="alumno"
             name="alumno"
             className="form-control"
             value={formData.alumno}
-            disabled 
+            disabled
           />
         </div>
 
@@ -102,11 +95,10 @@ const Tiquet = () => {
           <label htmlFor="aula" className="form-label">Aula:</label>
           <input
             type="text"
-            codigo="aula"
             name="aula"
             className="form-control"
             value={formData.aula}
-            onChange={handleChange} // Con esto hacemos q sea editable
+            onChange={handleChange}
           />
         </div>
 
@@ -114,11 +106,10 @@ const Tiquet = () => {
           <label htmlFor="grupo" className="form-label">Grupo:</label>
           <input
             type="text"
-            codigo="grupo"
             name="grupo"
             className="form-control"
             value={formData.grupo}
-            onChange={handleChange} // Ahora es editable
+            onChange={handleChange}
           />
         </div>
 
@@ -126,7 +117,6 @@ const Tiquet = () => {
           <label htmlFor="ordenador" className="form-label">Ordenador:</label>
           <input
             type="text"
-            codigo="ordenador"
             name="ordenador"
             className="form-control"
             value={formData.ordenador}
@@ -137,7 +127,6 @@ const Tiquet = () => {
         <div className="mb-3">
           <label htmlFor="descripcion" className="form-label">Descripción:</label>
           <textarea
-            codigo="descripcion"
             name="descripcion"
             className="form-control"
             rows="3"
@@ -146,10 +135,10 @@ const Tiquet = () => {
           />
         </div>
 
-        <button type="submit" className="btn btn-primary">Enviar</button>
+        <button type="submit" className="btn btn-primary">Guardar Cambios</button>
       </form>
     </div>
   );
 };
 
-export default Tiquet;
+export default EditTiquet;
