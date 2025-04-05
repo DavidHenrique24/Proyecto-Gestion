@@ -16,7 +16,7 @@ const Header = () => {
   const handleLogout = () => {
     setUser(null);
     localStorage.removeItem('usuario');
-    navigate('/IniciSessio');
+    navigate('/');
   };
 
   return (
