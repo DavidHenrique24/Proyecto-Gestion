@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../componentes/UserContext'; // Importamos el contexto del usuario
+import supabase from '../ultis/supabase'; // Importamos el cliente Supabase
 
 const IniciarSesion = () => {
   const [email, setEmail] = useState('');
@@ -9,31 +10,28 @@ const IniciarSesion = () => {
   const { setUser } = useUser(); // Accedemos a setUser desde el contexto
   const navigate = useNavigate();
 
-  // Obtener usuarios del localStorage
-  const obtenerUsuarios = () => {
-    return JSON.parse(localStorage.getItem('datosUsuarios')) || [];
-  };
-
-  
-  const gestionarLogin = (e) => {
+  // Función para gestionar el inicio de sesión
+  const gestionarLogin = async (e) => {
     e.preventDefault();
 
-    const usuariosExistentes = obtenerUsuarios();
+    // Usar Supabase para autenticar al usuario con los valores del formulario
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password: contrasena,
+    });
 
-    // Verificar si el usuario existe
-    const usuarioAutenticado = usuariosExistentes.find((usuario) => usuario.email === email && usuario.contrasena === contrasena);
-    
-    if (!usuarioAutenticado) {
+    // Comprobamos si hubo un error
+    if (error) {
       setMensaje('Usuario o contraseña incorrectos');
+      console.error('Error de autenticación:', error.message);
       return;
     }
 
-    // Guardar usuario en el contexto y en localStorage
-    setUser(usuarioAutenticado);
-    localStorage.setItem('usuario', JSON.stringify(usuarioAutenticado));
+    // Si la autenticación fue exitosa, guardar el usuario en el contexto
+    setUser(data.user);
 
-    // Redirigir al panel
-    navigate('/Panel'); 
+    // Redirigir al panel de usuario
+    navigate('/Panel');
   };
 
   return (

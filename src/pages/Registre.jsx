@@ -1,52 +1,37 @@
 import React, { useState } from 'react';
 import { Navigate } from 'react-router-dom';
+import supabase from '../ultis/supabase';  
 
 const Registro = () => {
   // Estados para el formulario y mensajes
   const [email, setEmail] = useState('');
   const [contrasena, setContrasena] = useState('');
   const [mensaje, setMensaje] = useState('');
+  const [redirigir, setRedirigir] = useState(false);
 
-  // Cargar usuarios existentes al iniciar
-  const obtenerUsuarios = () => {
-    return JSON.parse(localStorage.getItem('datosUsuarios')) || [];
-  };
-
-  const gestionarRegistro = (e) => {
+  // Función para gestionar el registro
+  const gestionarRegistro = async (e) => {
     e.preventDefault(); // Evitar que el formulario se envíe de manera tradicional
 
-    // Obtener lista actual de usuarios
-    const usuariosExistentes = obtenerUsuarios();
+    // Registrar el nuevo usuario en Supabase 
+    const { data, error} = await supabase.auth.signUp({
+      email,
+      password: contrasena,
+    });
 
-    // Verificar si el usuario ya está registrado
-    const usuarioExiste = usuariosExistentes.some((usuario) => usuario.email === email);
-    if (usuarioExiste) {
-      setMensaje('Este usuario ya está registrado.');
-      return;
-    }
-
-    // Agregar nuevo usuario con rol predeterminado "user"
-    const nuevoUsuario = { email, contrasena, rol: 'user' };
-    const nuevosUsuarios = [...usuariosExistentes, nuevoUsuario];
-
-    // Guardar en localStorage
-    localStorage.setItem('datosUsuarios', JSON.stringify(nuevosUsuarios));
-
-    // Limpiar el formulario y mostrar mensaje de éxito
-    setEmail('');
-    setContrasena('');
-    setMensaje('Registro exitoso.');
-
-    // Redirigir al inicio de sesión (suponiendo que tienes una ruta para esto)
-    Navigate('/inicioSessio');
+    setRedirigir(true);
   };
+
+  if (redirigir) {
+    return <Navigate to="/" />;  
+  }
 
   return (
     <main className="container mt-5">
       <div className="pt-5">
         <h1 className="w-100 text-center">Registro</h1>
         <form onSubmit={gestionarRegistro} className="form p-4 border shadow mt-5 mx-auto" style={{ width: '400px' }}>
-          <label htmlFor="email" className="mt-2 form-label">Usuario:</label>
+          <label htmlFor="email" className="mt-2 form-label">Correo Electrónico:</label>
           <input 
             type="email"
             className="form-control"
@@ -55,7 +40,7 @@ const Registro = () => {
             onChange={(e) => setEmail(e.target.value)}
             required
           />
-  
+
           <label htmlFor="pass" className="mt-2 form-label">Contraseña:</label>
           <input 
             type="password"
@@ -64,7 +49,7 @@ const Registro = () => {
             onChange={(e) => setContrasena(e.target.value)}
             required
           />
-  
+
           <input type="submit" className="mt-4 w-100 btn btn-primary" value="Registrarse" />
         </form>
 
