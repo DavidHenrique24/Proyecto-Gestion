@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useUser } from '../componentes/UserContext';
 import { useNavigate, useParams } from 'react-router-dom'; // Importa useNavigate y useParams
 import supabase from '../ultis/supabase'; // Importa el cliente Supabase
 
 const EditTiquet = () => {
-  const { user } = useUser(); // Obtener usuario desde el contexto
   const [formData, setFormData] = useState({
     aula: '',
     grupo: '',
@@ -70,14 +68,6 @@ const EditTiquet = () => {
       })
       .eq('id', codigo); // Filtra por el 'codigo'
 
-    if (error) {
-      console.error('Error al actualizar el tiquet:', error.message);
-      setError('Hubo un error al actualizar el tiquet.');
-    } else {
-      console.log('Tiquet actualizado:', data);
-      setError('');
-      navigate('/panel'); // Redirigir al panel después de guardar los cambios
-    }
   };
 
   return (
