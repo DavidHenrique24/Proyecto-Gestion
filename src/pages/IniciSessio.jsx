@@ -27,8 +27,23 @@ const IniciarSesion = () => {
       return;
     }
 
-    // Si la autenticación fue exitosa, guardar el usuario en el contexto
-    setUser(data.user);
+    // Si la autenticación fue exitosa, obtener el rol del usuario desde la tabla 'usuarios'
+    const { data: userData, error: userError } = await supabase
+      .from('usuarios')
+      .select('rol')
+      .eq('user_id', data.user.id) // Asegúrate de que el campo que almacena el ID del usuario es 'user_id'
+      .single(); // Obtener solo un registro
+
+    if (userError) {
+      console.error('Error al obtener el rol del usuario:', userError.message);
+      return;
+    }
+
+    // Guardar el usuario y su rol en el contexto
+    setUser({
+      ...data.user,
+      rol: userData?.rol, // Guardar el rol del usuario
+    });
 
     // Redirigir al panel de usuario
     navigate('/Panel');
