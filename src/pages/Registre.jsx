@@ -13,17 +13,45 @@ const Registro = () => {
   const gestionarRegistro = async (e) => {
     e.preventDefault(); // Evitar que el formulario se envíe de manera tradicional
 
-    // Registrar el nuevo usuario en Supabase 
-    const { data, error} = await supabase.auth.signUp({
+    // Registrar el nuevo usuario en Supabase
+    const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
       password: contrasena,
     });
 
-    setRedirigir(true);
+    if (authError) {
+      setMensaje('Error al registrar el usuario: ' + authError.message);
+      console.error('Error al registrar el usuario:', authError.message);
+    } else if (authData) {
+      // Actualizar los datos del usuario en la tabla 'usuarios'
+      const { data: updateData, error: updateError } = await supabase
+        .from('usuarios') // Asegúrate de que la tabla se llame 'usuarios'
+        .upsert({
+          email: email,              // Establece el correo electrónico
+          rol: 'user',               // Establece el rol predeterminado como 'user'
+          user_id: authData.user.id  // Asocia el user_id de Supabase con el registro
+        });
+
+      if (updateError) {
+        setMensaje('Error al actualizar los datos del usuario: ' + updateError.message);
+        console.error('Error al actualizar los datos del usuario:', updateError.message);
+      } else {
+        // Limpiar el formulario y mostrar mensaje de éxito
+        setEmail('');
+        setContrasena('');
+        setMensaje('Registro exitoso. Redirigiendo al inicio de sesión...');
+
+        // Redirigir al inicio de sesión automáticamente
+        setRedirigir(true);
+      }
+    } else {
+      setMensaje('Error al registrar el usuario: No se recibió información del usuario.');
+    }
   };
 
+  // Si redirigir es true, navega al inicio de sesión
   if (redirigir) {
-    return <Navigate to="/" />;  
+    return <Navigate to="/" />;  // Aquí se redirige a la página de inicio de sesión
   }
 
   return (
