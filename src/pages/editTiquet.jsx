@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useUser } from '../componentes/UserContext';
 import { useNavigate, useParams } from 'react-router-dom'; // Importa useNavigate y useParams
+import supabase from '../ultis/supabase'; // Importa el cliente Supabase
 
 const EditTiquet = () => {
   const { user } = useUser(); // Obtener usuario desde el contexto
@@ -12,24 +13,33 @@ const EditTiquet = () => {
   });
 
   const [error, setError] = useState('');
-  const [dadesTiquets, setDadesTiquets] = useState([]);
   const navigate = useNavigate(); // Inicializa el hook de navegación
   const { codigo } = useParams(); // Obtiene el 'codigo' del tiquet desde los parámetros de la URL
 
+  // Cargar los datos del tiquet al montar el componente
   useEffect(() => {
-    const tiquetsGuardados = JSON.parse(localStorage.getItem('dades_tiquets')) || [];
-    setDadesTiquets(tiquetsGuardados);
-    const tiquetParaEditar = tiquetsGuardados.find((tiquet) => tiquet.codigo === parseInt(codigo));
+    const fetchTiquet = async () => {
+      // Consulta el tiquet desde la base de datos usando Supabase
+      const { data, error } = await supabase
+        .from('tiquets') // Nombre de la tabla
+        .select('*')
+        .eq('id', codigo) // Filtra por el 'codigo'
+        .single(); // Solo obtener un registro
 
-    if (tiquetParaEditar) {
-      setFormData({
-        aula: tiquetParaEditar.aula,
-        grupo: tiquetParaEditar.grupo,
-        ordenador: tiquetParaEditar.ordenador,
-        descripcion: tiquetParaEditar.descripcion,
-        alumno: tiquetParaEditar.alumno,
-      });
-    }
+      if (error) {
+        console.error('Error al cargar el tiquet:', error.message);
+        setError('Error al cargar el tiquet.');
+      } else {
+        setFormData({
+          aula: data.aula,
+          grupo: data.grupo,
+          ordenador: data.ordenador,
+          descripcion: data.descripcion,
+        });
+      }
+    };
+
+    fetchTiquet();
   }, [codigo]);
 
   const handleChange = (e) => {
@@ -40,7 +50,7 @@ const EditTiquet = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     // Validar que todos los campos sean completados
@@ -49,27 +59,25 @@ const EditTiquet = () => {
       return;
     }
 
-    // Actualizar el tiquet en el almacenamiento local
-    const nuevosTiquets = dadesTiquets.map((tiquet) => {
-      if (tiquet.codigo === parseInt(codigo)) {
-        return {
-          ...tiquet,
-          aula: formData.aula,
-          grupo: formData.grupo,
-          ordenador: formData.ordenador,
-          descripcion: formData.descripcion,
-        };
-      }
-      return tiquet;
-    });
+    // Actualizar el tiquet en la base de datos
+    const { data, error } = await supabase
+      .from('tiquets') // Nombre de la tabla
+      .update({
+        aula: formData.aula,
+        grupo: formData.grupo,
+        ordenador: formData.ordenador,
+        descripcion: formData.descripcion,
+      })
+      .eq('id', codigo); // Filtra por el 'codigo'
 
-    setDadesTiquets(nuevosTiquets);
-    localStorage.setItem('dades_tiquets', JSON.stringify(nuevosTiquets));
-
-    console.log('Tiquet editado:', formData);
-
-    setError('');
-    navigate('/panel'); // Redirigir al panel después de guardar los cambios
+    if (error) {
+      console.error('Error al actualizar el tiquet:', error.message);
+      setError('Hubo un error al actualizar el tiquet.');
+    } else {
+      console.log('Tiquet actualizado:', data);
+      setError('');
+      navigate('/panel'); // Redirigir al panel después de guardar los cambios
+    }
   };
 
   return (
@@ -79,7 +87,6 @@ const EditTiquet = () => {
       {error && <div className="alert alert-danger">{error}</div>}
 
       <form onSubmit={handleSubmit}>
-
         <div className="mb-3">
           <label htmlFor="aula" className="form-label">Aula:</label>
           <input
