@@ -1,34 +1,60 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useUser } from '../componentes/UserContext'; // Importar el contexto de usuario
-
-const tenerTiquets = () => JSON.parse(localStorage.getItem('dades_tiquets')) || [];
-
-const resolverTiquet = (codigo, setTiquetsPendient) => {
-    const tiquets = tenerTiquets().map(tiquet => 
-        tiquet.codigo === codigo ? { ...tiquet, estat: 'resolt' } : tiquet
-    );
-    localStorage.setItem('dades_tiquets', JSON.stringify(tiquets));
-    setTiquetsPendient(tiquets.filter(tiquet => tiquet.estat === 'pendent'));
-};
-
-const eliminarTiquet = (codigo, setTiquetsPendient) => {
-    const tiquets = tenerTiquets().filter(tiquet => tiquet.codigo !== codigo);
-    localStorage.setItem('dades_tiquets', JSON.stringify(tiquets));
-    setTiquetsPendient(tiquets.filter(tiquet => tiquet.estat === 'pendent'));
-};
+import { useUser } from '../componentes/UserContext';
+import supabase from '../ultis/supabase';
 
 const TiquetsPendient = () => {
     const [tiquetsPendient, setTiquetsPendient] = useState([]);
     const navigate = useNavigate();
-    const { user } = useUser(); // Obtener el usuario en sesión
+    const { user } = useUser();
+
+    // Cargar los tiquets pendientes desde Supabase
+    const fetchTiquets = async () => {
+        const { data, error } = await supabase
+            .from('tiquets')
+            .select('*')
+            .eq('estat', 'pendent');
+
+        if (error) {
+            console.error('Error al obtener tiquets:', error);
+        } else {
+            setTiquetsPendient(data);
+        }
+    };
 
     useEffect(() => {
-        setTiquetsPendient(tenerTiquets().filter(tiquet => tiquet.estat === 'pendent'));
+        fetchTiquets();
     }, []);
 
-    const handleVerComentarios = (codigo) => {
-        localStorage.setItem('codigo_tiquet', codigo);
+    const resolverTiquet = async (id) => {
+        const fechaActual = new Date().toISOString().split('T')[0]; // Solo YYYY-MM-DD
+        const { error } = await supabase
+            .from('tiquets')
+            .update({ estat: 'resolt', fechaResuelto: fechaActual })
+            .eq('id', id);
+
+        if (error) {
+            console.error('Error al resolver tiquet:', error);
+        } else {
+            fetchTiquets(); // Recargar los pendientes
+        }
+    };
+
+    const eliminarTiquet = async (id) => {
+        const { error } = await supabase
+            .from('tiquets')
+            .delete()
+            .eq('id', id);
+
+        if (error) {
+            console.error('Error al eliminar tiquet:', error);
+        } else {
+            fetchTiquets(); // Recargar la lista
+        }
+    };
+
+    const handleVerComentarios = (id) => {
+        localStorage.setItem('id_tiquet', id);
         navigate('/comentarios');
     };
 
@@ -50,9 +76,9 @@ const TiquetsPendient = () => {
                 </thead>
                 <tbody>
                     {tiquetsPendient.map((tiquet) => (
-                        <tr key={tiquet.codigo}>
-                            <td>{tiquet.codigo}</td>
-                            <td>{tiquet.fecha}</td>
+                        <tr key={tiquet.id}>
+                            <td>{tiquet.id}</td>
+                            <td>{new Date(tiquet.fecha).toLocaleDateString()}</td>
                             <td>{tiquet.aula}</td>
                             <td>{tiquet.grupo}</td>
                             <td>{tiquet.ordenador}</td>
@@ -62,15 +88,14 @@ const TiquetsPendient = () => {
                                 <button 
                                     className="btn btn-success me-2" 
                                     title="Resolver ticket"
-                                    onClick={() => resolverTiquet(tiquet.codigo, setTiquetsPendient)}
+                                    onClick={() => resolverTiquet(tiquet.id)}
                                 >
                                     Resolver
                                 </button>
 
-                                {/* Solo los administradores pueden editar y eliminar */}
                                 {user?.rol === 'admin' && (
                                     <>
-                                        <Link to={`/editTiquet/${tiquet.codigo}`}>
+                                        <Link to={`/editTiquet/${tiquet.id}`}>
                                             <button 
                                                 className="btn btn-warning me-2" 
                                                 title="Editar ticket"
@@ -82,7 +107,7 @@ const TiquetsPendient = () => {
                                         <button 
                                             className="btn btn-danger me-2" 
                                             title="Eliminar ticket"
-                                            onClick={() => eliminarTiquet(tiquet.codigo, setTiquetsPendient)}
+                                            onClick={() => eliminarTiquet(tiquet.id)}
                                         >
                                             <i className="bi bi-trash3"></i>
                                         </button>
@@ -92,7 +117,7 @@ const TiquetsPendient = () => {
                                 <button 
                                     className="btn btn-info me-2" 
                                     title="Ver comentarios"
-                                    onClick={() => handleVerComentarios(tiquet.codigo)}
+                                    onClick={() => handleVerComentarios(tiquet.id)}
                                 >
                                     <i className="bi bi-chat-left-text"></i>
                                 </button>
@@ -106,4 +131,3 @@ const TiquetsPendient = () => {
 };
 
 export default TiquetsPendient;
-
