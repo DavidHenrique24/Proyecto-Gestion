@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Comentario from '../componentes/Comentario';
-import { obtenerComentarios, guardarComentario } from '../utilidad/funciones';
+import supabase from '../ultis/supabase';
 
 export default function Comentarios() {
     const [comentarios, setComentarios] = useState([]);
@@ -10,16 +10,46 @@ export default function Comentarios() {
         const codigo = localStorage.getItem('codigo_tiquet');
         setCodigoTiquet(codigo);
 
-        // Filtrar solo los comentarios del tiquet actual
-        const comentariosGuardados = obtenerComentarios().filter(comentario => comentario.codigo === codigo);
-        setComentarios(comentariosGuardados);
+        // Cargar los comentarios desde Supabase
+        const cargarComentarios = async () => {
+            try {
+                const { data, error } = await supabase
+                    .from('comentarios')
+                    .select('*')
+                    .eq('ticket_id', codigo); // Filtramos por el ticket_id
+
+                if (error) {
+                    throw error;
+                }
+
+                setComentarios(data || []);
+            } catch (err) {
+                console.error('Error al cargar comentarios:', err.message);
+            }
+        };
+
+        if (codigo) {
+            cargarComentarios();
+        }
     }, []);
-    
 
     // Función para agregar un nuevo comentario sin perder los anteriores
-    const agregarComentario = (nuevoComentario) => {
-        guardarComentario(nuevoComentario);
-        setComentarios(prevComentarios => [...prevComentarios, nuevoComentario]);
+    const agregarComentario = async (nuevoComentario) => {
+        try {
+            // Insertar el nuevo comentario en la tabla 'comentarios' de Supabase
+            const { data, error } = await supabase
+                .from('comentarios')
+                .insert([nuevoComentario]);
+
+            if (error) {
+                throw error;
+            }
+
+            // Agregar el nuevo comentario al estado local
+            setComentarios(prevComentarios => [...prevComentarios, data[0]]);
+        } catch (err) {
+            console.error('Error al agregar comentario:', err.message);
+        }
     };
 
     return (
@@ -32,10 +62,10 @@ export default function Comentarios() {
 
             <div className="mt-4">
                 {comentarios.length > 0 ? (
-                    comentarios.map((comentario, index) => (
-                        <div key={index} className="card p-3 mt-2">
-                            <h5 className="text-end">Autor: <span>{comentario.autor}</span><span className="ms-4">{comentario.fecha}</span></h5>
-                            <p>{comentario.texto}</p>
+                    comentarios.map((comentario) => (
+                        <div key={comentario.id} className="card p-3 mt-2">
+                            <h5 className="text-end">Autor: <span>{comentario.usuario}</span><span className="ms-4">{comentario.fecha}</span></h5>
+                            <p>{comentario.comentario}</p>
                         </div>
                     ))
                 ) : (

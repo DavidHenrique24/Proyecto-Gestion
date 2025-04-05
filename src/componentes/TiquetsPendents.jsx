@@ -54,7 +54,7 @@ const TiquetsPendient = () => {
     };
 
     const handleVerComentarios = (id) => {
-        localStorage.setItem('id_tiquet', id);
+        localStorage.setItem('codigo_tiquet', id); 
         navigate('/comentarios');
     };
 

@@ -27,23 +27,23 @@ const TiquetsResolts = () => {
   }, []);
 
   // Eliminar un tiquet resuelto
-  const eliminarTiquet = async (codigo) => {
+  const eliminarTiquet = async (id) => {
     const { error } = await supabase
       .from('tiquets')
       .delete()
-      .eq('codigo', codigo);
+      .eq('id', id);
 
     if (error) {
       console.error('Error al eliminar tiquet:', error.message);
     } else {
       setTiquetsResolts((prev) =>
-        prev.filter((tiquet) => tiquet.codigo !== codigo)
+        prev.filter((tiquet) => tiquet.id !== id)
       );
     }
   };
 
-  const handleVerComentarios = (codigo) => {
-    localStorage.setItem('codigo_tiquet', codigo);
+  const handleVerComentarios = (id) => {
+    localStorage.setItem('id_tiquet', id); 
     navigate('/comentarios');
   };
 
@@ -80,7 +80,7 @@ const TiquetsResolts = () => {
                 <button
                   className="btn btn-info me-2"
                   title="Ver comentarios"
-                  onClick={() => handleVerComentarios(tiquet.codigo)}
+                  onClick={() => handleVerComentarios(tiquet.id)}
                 >
                   <i className="bi bi-chat-left-text"></i>
                 </button>
@@ -89,7 +89,7 @@ const TiquetsResolts = () => {
                   <button
                     className="btn btn-danger"
                     title="Eliminar ticket"
-                    onClick={() => eliminarTiquet(tiquet.codigo)}
+                    onClick={() => eliminarTiquet(tiquet.id)}
                   >
                     <i className="bi bi-trash3"></i>
                   </button>
