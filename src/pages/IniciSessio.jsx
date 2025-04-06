@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../componentes/UserContext'; // Importamos el contexto del usuario
+import supabase from '../ultis/supabase'; // Importamos el cliente Supabase
 
 const IniciarSesion = () => {
   const [email, setEmail] = useState('');
@@ -9,31 +10,43 @@ const IniciarSesion = () => {
   const { setUser } = useUser(); // Accedemos a setUser desde el contexto
   const navigate = useNavigate();
 
-  // Obtener usuarios del localStorage
-  const obtenerUsuarios = () => {
-    return JSON.parse(localStorage.getItem('datosUsuarios')) || [];
-  };
-
-  
-  const gestionarLogin = (e) => {
+  // Función para gestionar el inicio de sesión
+  const gestionarLogin = async (e) => {
     e.preventDefault();
 
-    const usuariosExistentes = obtenerUsuarios();
+    // Usar Supabase para autenticar al usuario con los valores del formulario
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password: contrasena,
+    });
 
-    // Verificar si el usuario existe
-    const usuarioAutenticado = usuariosExistentes.find((usuario) => usuario.email === email && usuario.contrasena === contrasena);
-    
-    if (!usuarioAutenticado) {
+    // Comprobamos si hubo un error
+    if (error) {
       setMensaje('Usuario o contraseña incorrectos');
+      console.error('Error de autenticación:', error.message);
       return;
     }
 
-    // Guardar usuario en el contexto y en localStorage
-    setUser(usuarioAutenticado);
-    localStorage.setItem('usuario', JSON.stringify(usuarioAutenticado));
+    // Si la autenticación fue exitosa, obtener el rol del usuario desde la tabla 'usuarios'
+    const { data: userData, error: userError } = await supabase
+      .from('usuarios')
+      .select('rol')
+      .eq('user_id', data.user.id) // Asegúrate de que el campo que almacena el ID del usuario es 'user_id'
+      .single(); // Obtener solo un registro
 
-    // Redirigir al panel
-    navigate('/'); 
+    if (userError) {
+      console.error('Error al obtener el rol del usuario:', userError.message);
+      return;
+    }
+
+    // Guardar el usuario y su rol en el contexto
+    setUser({
+      ...data.user,
+      rol: userData?.rol, // Guardar el rol del usuario
+    });
+
+    // Redirigir al panel de usuario
+    navigate('/Panel');
   };
 
   return (

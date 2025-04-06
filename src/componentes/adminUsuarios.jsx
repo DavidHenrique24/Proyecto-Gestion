@@ -1,34 +1,57 @@
 import React, { useState, useEffect } from 'react';
 import { useUser } from '../componentes/UserContext'; // Importamos el contexto del usuario
 import { useNavigate } from 'react-router-dom';
-
-//Si no es admin, redirigir a la página de inicio
-// {user && user.rol !== 'admin' && (
-//   <Navigate to="/" />
-// )}
+import supabase from '../ultis/supabase'; // Importa el cliente Supabase
 
 const AdminUsuarios = () => {
   const [datosUsuarios, setDatosUsuarios] = useState([]);
   const { user, setUser } = useUser(); // Accedemos al usuario en sesión
+  const navigate = useNavigate(); // Hook para la navegación
 
   useEffect(() => {
-    const usuariosGuardados = JSON.parse(localStorage.getItem('datosUsuarios')) || [];
-    setDatosUsuarios(usuariosGuardados);
-  }, []);
+    //Desactivo por si quiero volver a usarlo
+    // // Verificar si el usuario es admin antes de cargar la lista
+    // if (user && user.rol !== 'admin') {
+    //   navigate('/'); // Redirigir a la página principal si no es admin
+    // }
 
-  const handleRoleChange = (email, nuevoRol) => {
-    const usuariosActualizados = datosUsuarios.map((usuario) =>
-      usuario.email === email ? { ...usuario, rol: nuevoRol } : usuario
-    );
+    const fetchUsuarios = async () => {
+      // Obtener todos los usuarios desde Supabase
+      const { data, error } = await supabase
+        .from('usuarios') // Nombre de la tabla en Supabase
+        .select('*'); // Seleccionar todos los campos
 
-    setDatosUsuarios(usuariosActualizados);
-    localStorage.setItem('datosUsuarios', JSON.stringify(usuariosActualizados));
+      if (error) {
+        console.error('Error al cargar los usuarios:', error.message);
+      } else {
+        setDatosUsuarios(data);
+      }
+    };
 
-    // Si el usuario modificado es el que está en sesión, actualizarlo también
-    if (user && user.email === email) {
-      const usuarioActualizado = { ...user, rol: nuevoRol };
-      setUser(usuarioActualizado);
-      localStorage.setItem('usuario', JSON.stringify(usuarioActualizado));
+    fetchUsuarios(); //Para cargar los usuarios al iniciar el componente
+  }, [user, navigate]);
+
+  const handleRoleChange = async (email, nuevoRol) => {
+    // Actualizar el rol del usuario en Supabase
+    const { data, error } = await supabase
+      .from('usuarios') // Nombre de la tabla en Supabase
+      .update({ rol: nuevoRol }) // Actualizar el rol
+      .eq('email', email); // Filtrar por el email del usuario
+
+    if (error) {
+      console.error('Error al actualizar el rol:', error.message);
+    } else {
+      // Si el rol actualizado es del usuario logueado, actualizamos también el contexto
+      if (user && user.email === email) {
+        const usuarioActualizado = { ...user, rol: nuevoRol };
+        setUser(usuarioActualizado);
+        localStorage.setItem('usuario', JSON.stringify(usuarioActualizado));
+      }
+
+      // Actualizar el estado de los usuarios para reflejar los cambios
+      setDatosUsuarios(datosUsuarios.map((usuario) =>
+        usuario.email === email ? { ...usuario, rol: nuevoRol } : usuario
+      ));
     }
   };
 

@@ -12,11 +12,12 @@ const Header = () => {
       setUser(usuarioGuardado);
     }
   }, [setUser]);
+  
 
   const handleLogout = () => {
     setUser(null);
     localStorage.removeItem('usuario');
-    navigate('/IniciSessio');
+    navigate('/');
   };
 
   return (
