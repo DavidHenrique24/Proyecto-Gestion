@@ -12,6 +12,7 @@ const Header = () => {
       setUser(usuarioGuardado);
     }
   }, [setUser]);
+  
 
   const handleLogout = () => {
     setUser(null);
