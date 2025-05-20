@@ -1,45 +1,51 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useUser } from '../componentes/UserContext';
+import { useUser } from '../componentes/UserContext'; 
 import supabase from '../ultis/supabase';
 
 const TiquetsPendient = () => {
+    // Estado para guardar los tickets desde Supabase
     const [tiquetsPendient, setTiquetsPendient] = useState([]);
     const navigate = useNavigate();
-    const { user } = useUser();
+   const { user } = useUser(); //obtiene el usuario actual
 
-    // Cargar los tiquets pendientes desde Supabase
+    // Función para cargar los tickets pendientes desde la tabla tiquets'
     const fetchTiquets = async () => {
         const { data, error } = await supabase
             .from('tiquets')
             .select('*')
-            .eq('estat', 'pendent');
+            .eq('estat', 'pendent');  // Solo tickets pendientes
 
         if (error) {
             console.error('Error al obtener tiquets:', error);
         } else {
-            setTiquetsPendient(data);
+            setTiquetsPendient(data);  // Actualiza el estado con los tickets 
         }
     };
 
+    // useEffect para cargar los tickets una sola vez cuando se monta el componente
     useEffect(() => {
         fetchTiquets();
     }, []);
 
+    // Función para marcar un ticket como resuelto (cambia estado y pone fecha actual)
     const resolverTiquet = async (id) => {
-        const fechaActual = new Date().toISOString().split('T')[0]; // Solo YYYY-MM-DD
+        // Fecha actual en formato ISO pero solo YYYY-MM-DD
+        const fechaActual = new Date().toISOString().split('T')[0];
+        
         const { error } = await supabase
             .from('tiquets')
-            .update({ estat: 'resolt', fechaResuelto: fechaActual })
+            .update({ estat: 'resolt', fechaResuelto: fechaActual }) // Pone resuelto los tiquets 
             .eq('id', id);
 
         if (error) {
             console.error('Error al resolver tiquet:', error);
         } else {
-            fetchTiquets(); // Recargar los pendientes
+            window.location.reload(); //Para que se carguen en los dos lados 
         }
     };
 
+    // Función para eliminar un ticket por id
     const eliminarTiquet = async (id) => {
         const { error } = await supabase
             .from('tiquets')
@@ -49,12 +55,14 @@ const TiquetsPendient = () => {
         if (error) {
             console.error('Error al eliminar tiquet:', error);
         } else {
-            fetchTiquets(); // Recargar la lista
+            // Recarga la pagina eliminado
+            fetchTiquets();
         }
     };
 
+    // Función para navegar a la página de comentarios del ticket con el id pasado
     const handleVerComentarios = (id) => {
-         navigate(`/comentarios/${id}`);
+        navigate(`/comentarios/${id}`);
     };
 
     return (
@@ -77,14 +85,14 @@ const TiquetsPendient = () => {
                     {tiquetsPendient.map((tiquet) => (
                         <tr key={tiquet.id}>
                             <td>{tiquet.id}</td>
-                            <td><td>{new Date(tiquet.fecha).toLocaleDateString()}</td>
-</td>
+                            <td>{new Date(tiquet.fecha).toLocaleDateString()}</td>
                             <td>{tiquet.aula}</td>
                             <td>{tiquet.grupo}</td>
                             <td>{tiquet.ordenador}</td>
                             <td>{tiquet.descripcion}</td>
                             <td>{tiquet.alumno}</td>
                             <td>
+                                {/* Botón para resolver ticket */}
                                 <button 
                                     className="btn btn-success me-2" 
                                     title="Resolver ticket"
@@ -93,6 +101,7 @@ const TiquetsPendient = () => {
                                     Resolver
                                 </button>
 
+                                {/* Solo si el usuario tiene rol 'admin, se muestran los botones de editar y eliminar */}
                                 {user?.rol === 'admin' && (
                                     <>
                                         <Link to={`/editTiquet/${tiquet.id}`}>
@@ -114,6 +123,7 @@ const TiquetsPendient = () => {
                                     </>
                                 )}
 
+                                {/* Botón para ver los comentarios del ticket */}
                                 <button 
                                     className="btn btn-info me-2" 
                                     title="Ver comentarios"

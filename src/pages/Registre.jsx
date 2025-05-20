@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import supabase from '../ultis/supabase';  
 
@@ -11,9 +11,9 @@ const Registro = () => {
 
   // Función para gestionar el registro
   const gestionarRegistro = async (e) => {
-    e.preventDefault(); // Evitar que el formulario se envíe de manera tradicional
+    e.preventDefault(); 
 
-    // Registrar el nuevo usuario en Supabase
+    // Registrar el nuevo usuario en la bd de supabase
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
       password: contrasena,
@@ -26,7 +26,7 @@ const Registro = () => {
       const { data: updateData, error: updateError } = await supabase
         .from('usuarios') // Asegúrate de que la tabla se llame 'usuarios'
         .upsert({
-          email: email,              // Establece el correo electrónico
+          email: email,          
           rol: 'user',               // Establece el rol predeterminado como 'user'
           user_id: authData.user.id  // Asocia el user_id de Supabase con el registro
         });
@@ -37,19 +37,16 @@ const Registro = () => {
         // Limpiar el formulario y mostrar mensaje de éxito
         setEmail('');
         setContrasena('');
-        setMensaje('Registro exitoso. Redirigiendo al inicio de sesión...');
-
-        // Redirigir al inicio de sesión automáticamente
-        setRedirigir(true);
+        setRedirigir(true); //redirige a inicio de sesion
       }
     } else {
-      setMensaje('Error al registrar el usuario: No se recibió información del usuario.');
+      setMensaje('Error al registrar el usuario');
     }
   };
 
   // Si redirigir es true, navega al inicio de sesión
   if (redirigir) {
-    return <Navigate to="/" />;  // Aquí se redirige a la página de inicio de sesión
+    return <Navigate to="/" />;  
   }
 
   return (

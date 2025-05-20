@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../componentes/UserContext'; // Importamos el contexto del usuario
 import supabase from '../ultis/supabase'; // Importamos el cliente Supabase

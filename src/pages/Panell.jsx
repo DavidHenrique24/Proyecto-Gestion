@@ -1,4 +1,3 @@
-import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import TiquetsPendents from '../componentes/TiquetsPendents';
 import TiquetsResolts from '../componentes/TiquetsResolts';
