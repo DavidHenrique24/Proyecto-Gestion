@@ -68,7 +68,7 @@ const Tiquet = () => {
       ordenador: formData.ordenador,
       descripcion: formData.descripcion,
       alumno: formData.alumno, // Solo email
-      fecha: new Date().toLocaleDateString(),
+      fecha: new Date().toISOString().split('T')[0],
       estat: 'pendent',
     };
 

@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useUser } from '../componentes/UserContext';
-import supabase from '../ultis/supabase';
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useUser } from "../componentes/UserContext";
+import supabase from "../ultis/supabase";
 
 const TiquetsResolts = () => {
   const [tiquetsResolts, setTiquetsResolts] = useState([]);
@@ -11,12 +11,12 @@ const TiquetsResolts = () => {
   // Cargar los tiquets resueltos desde Supabase
   const fetchTiquetsResolts = async () => {
     const { data, error } = await supabase
-      .from('tiquets')
-      .select('*')
-      .eq('estat', 'resolt');
+      .from("tiquets")
+      .select("*")
+      .eq("estat", "resolt");
 
     if (error) {
-      console.error('Error al obtener tiquets resueltos:', error.message);
+      console.error("Error al obtener tiquets resueltos:", error.message);
     } else {
       setTiquetsResolts(data || []);
     }
@@ -28,23 +28,18 @@ const TiquetsResolts = () => {
 
   // Eliminar un tiquet resuelto
   const eliminarTiquet = async (id) => {
-    const { error } = await supabase
-      .from('tiquets')
-      .delete()
-      .eq('id', id);
+    const { error } = await supabase.from("tiquets").delete().eq("id", id);
 
     if (error) {
-      console.error('Error al eliminar tiquet:', error.message);
+      console.error("Error al eliminar tiquet:", error.message);
     } else {
-      setTiquetsResolts((prev) =>
-        prev.filter((tiquet) => tiquet.id !== id)
-      );
+      setTiquetsResolts((prev) => prev.filter((tiquet) => tiquet.id !== id));
     }
   };
 
   const handleVerComentarios = (id) => {
-    localStorage.setItem('id_tiquet', id); 
-    navigate('/comentarios');
+    navigate(`/comentarios/${id}`);
+
   };
 
   return (
@@ -69,8 +64,18 @@ const TiquetsResolts = () => {
           {tiquetsResolts.map((tiquet) => (
             <tr key={tiquet.id}>
               <td>{tiquet.id}</td>
-              <td>{new Date(tiquet.fecha).toLocaleDateString()}</td>
-              <td>{new Date(tiquet.fechaResuelto).toLocaleDateString()}</td>
+              <td>
+                {tiquet.fecha
+                  ? new Date(tiquet.fecha).toLocaleDateString()
+                  : "Sin fecha"}
+              </td>
+              <td>
+                {tiquet.fechaResuelto
+                  ? new Date(tiquet.fechaResuelto).toLocaleDateString()
+                  : "Sin fecha"}
+              </td>
+              {/* Evitar errores con las fechas */}
+
               <td>{tiquet.aula}</td>
               <td>{tiquet.grupo}</td>
               <td>{tiquet.ordenador}</td>
@@ -85,7 +90,7 @@ const TiquetsResolts = () => {
                   <i className="bi bi-chat-left-text"></i>
                 </button>
 
-                {user?.rol === 'admin' && (
+                {user?.rol === "admin" && (
                   <button
                     className="btn btn-danger"
                     title="Eliminar ticket"

@@ -20,7 +20,6 @@ const Registro = () => {
     });
 
     if (authError) {
-      setMensaje('Error al registrar el usuario: ' + authError.message);
       console.error('Error al registrar el usuario:', authError.message);
     } else if (authData) {
       // Actualizar los datos del usuario en la tabla 'usuarios'
@@ -33,7 +32,6 @@ const Registro = () => {
         });
 
       if (updateError) {
-        setMensaje('Error al actualizar los datos del usuario: ' + updateError.message);
         console.error('Error al actualizar los datos del usuario:', updateError.message);
       } else {
         // Limpiar el formulario y mostrar mensaje de éxito

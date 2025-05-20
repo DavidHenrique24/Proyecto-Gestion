@@ -54,8 +54,7 @@ const TiquetsPendient = () => {
     };
 
     const handleVerComentarios = (id) => {
-        localStorage.setItem('codigo_tiquet', id); 
-        navigate('/comentarios');
+         navigate(`/comentarios/${id}`);
     };
 
     return (
@@ -78,7 +77,8 @@ const TiquetsPendient = () => {
                     {tiquetsPendient.map((tiquet) => (
                         <tr key={tiquet.id}>
                             <td>{tiquet.id}</td>
-                            <td>{new Date(tiquet.fecha).toLocaleDateString()}</td>
+                            <td><td>{new Date(tiquet.fecha).toLocaleDateString()}</td>
+</td>
                             <td>{tiquet.aula}</td>
                             <td>{tiquet.grupo}</td>
                             <td>{tiquet.ordenador}</td>
